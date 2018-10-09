@@ -1,0 +1,5 @@
+services:
+  sitemeta.route_subscriber:
+    class: Drupal\sitemeta\Routing\SitemetaRouteSubscriber
+    tags:
+    - { name: event_subscriber }
