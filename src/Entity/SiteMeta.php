@@ -236,8 +236,8 @@ class SiteMeta extends ContentEntityBase implements SiteMetaInterface {
       ->setRequired(TRUE);
 
     $fields['name'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Name'))
-      ->setDescription(t('The name of the sitemeta.'))
+      ->setLabel(t('Name/Title'))
+      ->setDescription(t('The name/title of the page.'))
       ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
