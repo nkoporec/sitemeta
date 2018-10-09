@@ -3,3 +3,6 @@ services:
     class: Drupal\sitemeta\Routing\SitemetaRouteSubscriber
     tags:
     - { name: event_subscriber }
+  sitemeta.sitemeta.generator:
+    class: Drupal\sitemeta\SitemetaGenerator
+    arguments: ['@entity_type.manager']

@@ -123,6 +123,9 @@ class SiteMetaForm extends ContentEntityForm {
     $path = $form_state->getValue('path');
     $path = $this->aliasManager->getPathByAlias($path);
 
+    // Make sure that we save the real path and not an alias.
+    $form_state->setValue('path', $path);
+
     if ($path[0] !== '/') {
       $form_state->setErrorByName('source', 'The path has to start with a slash.');
     }
