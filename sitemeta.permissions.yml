@@ -1,0 +1,19 @@
+add site meta entities:
+  title: 'Create new Site meta entities'
+
+administer site meta entities:
+  title: 'Administer Site meta entities'
+  description: 'Allow to access the administration form to configure Site meta entities.'
+  restrict access: true
+
+delete site meta entities:
+  title: 'Delete Site meta entities'
+
+edit site meta entities:
+  title: 'Edit Site meta entities'
+
+view published site meta entities:
+  title: 'View published Site meta entities'
+
+view unpublished site meta entities:
+  title: 'View unpublished Site meta entities'
