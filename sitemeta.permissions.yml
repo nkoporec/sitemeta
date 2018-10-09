@@ -11,9 +11,3 @@ delete site meta entities:
 
 edit site meta entities:
   title: 'Edit Site meta entities'
-
-view published site meta entities:
-  title: 'View published Site meta entities'
-
-view unpublished site meta entities:
-  title: 'View unpublished Site meta entities'
