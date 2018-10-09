@@ -24,10 +24,10 @@ use Drupal\user\UserInterface;
  *       "default" = "Drupal\sitemeta\Form\SiteMetaForm",
  *       "add" = "Drupal\sitemeta\Form\SiteMetaForm",
  *       "edit" = "Drupal\sitemeta\Form\SiteMetaForm",
- *       "delete" = "Drupal\sitemeta\Form\SiteMetaDeleteForm",
+ *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
  *     },
  *     "route_provider" = {
- *       "html" = "Drupal\sitemeta\SiteMetaHtmlRouteProvider",
+ *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
  *     },
  *   },
  *   base_table = "sitemeta",
