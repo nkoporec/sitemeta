@@ -6,6 +6,7 @@ use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Path\PathValidatorInterface;
+use Drupal\sitemeta\SitemetaGenerator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
@@ -41,6 +42,13 @@ class SiteMetaForm extends ContentEntityForm {
   protected $messenger;
 
   /**
+   * The sitemeta service.
+   *
+   * @var \Drupal\sitemeta\SitemetaGenerator
+   */
+  protected $sitemetaGenerator;
+
+  /**
    * Constructs a new SiteMetaForm.
    *
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
@@ -55,12 +63,15 @@ class SiteMetaForm extends ContentEntityForm {
    *   The path alias manager.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger service.
+   * @param \Drupal\sitemeta\SitemetaGenerator $sitemetaGenerator
+   *   The sitemeta service.
    */
-  public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, PathValidatorInterface $path_validator, AliasManagerInterface $alias_manager, MessengerInterface $messenger) {
+  public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, PathValidatorInterface $path_validator, AliasManagerInterface $alias_manager, MessengerInterface $messenger, SitemetaGenerator $sitemetaGenerator) {
     parent::__construct($entity_repository, $entity_type_bundle_info, $time);
     $this->pathValidator = $path_validator;
     $this->aliasManager = $alias_manager;
     $this->messenger = $messenger;
+    $this->sitemetaGenerator = $sitemetaGenerator;
   }
 
   /**
@@ -73,7 +84,8 @@ class SiteMetaForm extends ContentEntityForm {
       $container->get('datetime.time'),
       $container->get('path.validator'),
       $container->get('path.alias_manager'),
-      $container->get('messenger')
+      $container->get('messenger'),
+      $container->get('sitemeta.sitemeta.generator')
     );
   }
 
@@ -132,6 +144,10 @@ class SiteMetaForm extends ContentEntityForm {
 
     if (!$this->pathValidator->isValid(trim($path, '/'))) {
       $form_state->setErrorByName('source', t("Either the path '@link_path' is invalid or you do not have access to it.", ['@link_path' => $path]));
+    }
+
+    if ($this->sitemetaGenerator->getSiteMeta($path, $this->entity->langcode->value) && $form['#form_id'] != "sitemeta_edit_form") {
+      $form_state->setErrorByName('source', 'Meta for this page and language already exists.');
     }
   }
 
