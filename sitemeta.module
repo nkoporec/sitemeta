@@ -84,7 +84,7 @@ function sitemeta_form_node_post_edit_form_alter(&$form, FormStateInterface $for
     '#open' => FALSE,
     '#group' => 'advanced',
     '#access' => TRUE,
-    '#weight' => 30,
+    '#weight' => 100,
   ];
 
   $form['sitemeta_settings']['sitemeta_name'] = array(
