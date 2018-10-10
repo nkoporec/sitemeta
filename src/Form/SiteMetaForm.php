@@ -142,7 +142,7 @@ class SiteMetaForm extends ContentEntityForm {
       $form_state->setErrorByName('source', 'The path has to start with a slash.');
     }
 
-    if (!$this->pathValidator->isValid(trim($path, '/'))) {
+    if (!$this->pathValidator->isValid(trim($path, '/')) && strpos($path, '%') == FALSE) {
       $form_state->setErrorByName('source', t("Either the path '@link_path' is invalid or you do not have access to it.", ['@link_path' => $path]));
     }
 
