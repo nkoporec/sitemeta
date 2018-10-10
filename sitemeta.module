@@ -6,6 +6,8 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\sitemeta\Entity\SiteMeta;
 
 /**
  * Implements hook_help().
@@ -61,4 +63,139 @@ function sitemeta_preprocess_html(&$vars) {
       $vars['page']['#attached']['html_head'][] = [$meta_keywords, 'keywords'];
     }
   }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ *
+ * {@inheritdoc}
+ */
+function sitemeta_form_node_post_edit_form_alter(&$form, FormStateInterface $form_state) {
+  $node = $form_state->getFormObject()->getEntity();
+  $path = "/node/" . $node->id();
+  $existing_sitemeta = \Drupal::entityTypeManager()->getStorage('sitemeta')->loadByProperties(['path' => $path, 'langcode' => $node->langcode->value]);
+  if ($existing_sitemeta) {
+    $sitemeta = end($existing_sitemeta);
+  }
+
+  $form['sitemeta_settings'] = [
+    '#type' => 'details',
+    '#title' => t('Custom meta'),
+    '#open' => FALSE,
+    '#group' => 'advanced',
+    '#access' => TRUE,
+    '#weight' => 30,
+  ];
+
+  $form['sitemeta_settings']['sitemeta_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name/Title'),
+    '#description' => t('The name/title of the page.'),
+    '#default_value' => isset($sitemeta) ? $sitemeta->getName() : "",
+    '#maxlength' => 255,
+  );
+
+  $form['sitemeta_settings']['sitemeta_path'] = [
+    '#type' => 'textfield',
+    '#title' => t('Existing system path'),
+    '#maxlength' => 255,
+    '#size' => 45,
+    '#default_value' => $path,
+    '#disabled' => TRUE,
+    '#description' => t('Specify the existing path you wish to add a sitemeta. For example: /node/28, /forum/1, /taxonomy/term/1, /taxonomy/term/%.'),
+    '#field_prefix' => \Drupal::request()->getHost(),
+  ];
+
+  $form['sitemeta_settings']['sitemeta_description'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Description'),
+    '#description' => t('Specify the description.'),
+    '#default_value' => isset($sitemeta) ? $sitemeta->getDescription() : "",
+    '#maxlength' => 255,
+  );
+
+  $form['sitemeta_settings']['sitemeta_keywords'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Keywords'),
+    '#description' => t('Specify the keywords separated by comma.'),
+    '#default_value' => isset($sitemeta) ? $sitemeta->getKeywords() : "",
+    '#maxlength' => 255,
+  );
+
+  $form['sitemeta']['#group'] = 'sitemeta_settings';
+
+  $form['#validate'][] = 'sitemeta_form_node_form_validate';
+  foreach (array_keys($form['actions']) as $action) {
+    if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+      $form['actions'][$action]['#submit'][] = 'sitemeta_form_node_form_submit';
+    }
+  }
+}
+
+/**
+ * Custom form validation to validate the correct values of sitemeta field.
+ *
+ * @param array $form
+ *   Form object.
+ * @param FormStateInterface $form_state
+ *   Current form state.
+ */
+function sitemeta_form_node_form_validate(array $form, FormStateInterface $form_state) {
+  if (!empty($form_state->getValue('sitemeta_name')) ||
+      !empty($form_state->getValue('sitemeta_description')) ||
+      !empty($form_state->getValue('sitemeta_keywords'))) {
+    sitemeta_validate_path($form, $form_state);
+  }
+}
+
+/**
+ * Validates the sitemeta path.
+ *
+ * @param array $form
+ *   Form object.
+ * @param FormStateInterface $form_state
+ *   Current form state.
+ */
+function sitemeta_validate_path(array $form, FormStateInterface $form_state) {
+  $path = $form_state->getValue('sitemeta_path');
+  $pathValidator = \Drupal::service('path.validator');
+
+  if ($path[0] !== '/') {
+    $form_state->setErrorByName('source', 'The path has to start with a slash.');
+  }
+
+  if (!$pathValidator->isValid(trim($path, '/')) && strpos($path, '%') == FALSE) {
+    $form_state->setErrorByName('source', t("Either the path '@link_path' is invalid or you do not have access to it.", ['@link_path' => $path]));
+  }
+}
+
+/**
+ * Custom submit to save or update sitemeta entity.
+ *
+ * @param array $form
+ *   Form object.
+ * @param FormStateInterface $form_state
+ *   Current form state.
+ *
+ * @throws \Drupal\Core\Entity\EntityStorageException
+ */
+function sitemeta_form_node_form_submit(array $form, FormStateInterface $form_state) {
+  $node = $form_state->getFormObject()->getEntity();
+  $sitemetaGenerator = \Drupal::service('sitemeta.sitemeta.generator');
+  // Check if updating or creating a new entry.
+  if ($sitemeta = $sitemetaGenerator->getSiteMeta($form_state->getValue('sitemeta_path'), $node->langcode->value)) {
+    $sitemeta->set('name', $form_state->getValue('sitemeta_name'));
+    $sitemeta->set('path', $form_state->getValue('sitemeta_path'));
+    $sitemeta->set('description', $form_state->getValue('sitemeta_description'));
+    $sitemeta->set('keywords', $form_state->getValue('sitemeta_keywords'));
+  }
+  else {
+    $sitemeta = SiteMeta::create([
+      'name' => $form_state->getValue('sitemeta_name'),
+      'path' => $form_state->getValue('sitemeta_path'),
+      'description' => $form_state->getValue('sitemeta_description'),
+      'keywords' => $form_state->getValue('sitemeta_keywords'),
+    ]);
+  }
+  $sitemeta->save();
 }
