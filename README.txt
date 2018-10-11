@@ -60,4 +60,3 @@ Nejc Koporec(@nkoporec , http://www.nkoporec.com).
 
 Maintainer for 8.x:
  * Nejc Koporec(nkoporec) - https://www.drupal.org/u/nkoporec
- 
