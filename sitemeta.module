@@ -88,13 +88,13 @@ function sitemeta_form_node_post_edit_form_alter(&$form, FormStateInterface $for
     '#weight' => 100,
   ];
 
-  $form['sitemeta_settings']['sitemeta_name'] = array(
+  $form['sitemeta_settings']['sitemeta_name'] = [
     '#type' => 'textfield',
     '#title' => t('Name/Title'),
     '#description' => t('The name/title of the page.'),
     '#default_value' => isset($sitemeta) ? $sitemeta->getName() : "",
     '#maxlength' => 255,
-  );
+  ];
 
   $form['sitemeta_settings']['sitemeta_path'] = [
     '#type' => 'textfield',
@@ -107,21 +107,21 @@ function sitemeta_form_node_post_edit_form_alter(&$form, FormStateInterface $for
     '#field_prefix' => \Drupal::request()->getHost(),
   ];
 
-  $form['sitemeta_settings']['sitemeta_description'] = array(
+  $form['sitemeta_settings']['sitemeta_description'] = [
     '#type' => 'textarea',
     '#title' => t('Description'),
     '#description' => t('Specify the description.'),
     '#default_value' => isset($sitemeta) ? $sitemeta->getDescription() : "",
     '#maxlength' => 255,
-  );
+  ];
 
-  $form['sitemeta_settings']['sitemeta_keywords'] = array(
+  $form['sitemeta_settings']['sitemeta_keywords'] = [
     '#type' => 'textfield',
     '#title' => t('Keywords'),
     '#description' => t('Specify the keywords separated by comma.'),
     '#default_value' => isset($sitemeta) ? $sitemeta->getKeywords() : "",
     '#maxlength' => 255,
-  );
+  ];
 
   $form['sitemeta']['#group'] = 'sitemeta_settings';
 
@@ -138,10 +138,10 @@ function sitemeta_form_node_post_edit_form_alter(&$form, FormStateInterface $for
  *
  * @param array $form
  *   Form object.
- * @param FormStateInterface $form_state
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
  *   Current form state.
  */
-function sitemeta_form_node_form_validate(array $form, FormStateInterface $form_state) {
+function sitemeta_form_node_form_validate($form, FormStateInterface $form_state) {
   if (!empty($form_state->getValue('sitemeta_name')) ||
       !empty($form_state->getValue('sitemeta_description')) ||
       !empty($form_state->getValue('sitemeta_keywords'))) {
@@ -154,10 +154,10 @@ function sitemeta_form_node_form_validate(array $form, FormStateInterface $form_
  *
  * @param array $form
  *   Form object.
- * @param FormStateInterface $form_state
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
  *   Current form state.
  */
-function sitemeta_validate_path(array $form, FormStateInterface $form_state) {
+function sitemeta_validate_path($form, FormStateInterface $form_state) {
   $path = $form_state->getValue('sitemeta_path');
   $pathValidator = \Drupal::service('path.validator');
 
@@ -175,12 +175,12 @@ function sitemeta_validate_path(array $form, FormStateInterface $form_state) {
  *
  * @param array $form
  *   Form object.
- * @param FormStateInterface $form_state
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
  *   Current form state.
  *
  * @throws \Drupal\Core\Entity\EntityStorageException
  */
-function sitemeta_form_node_form_submit(array $form, FormStateInterface $form_state) {
+function sitemeta_form_node_form_submit($form, FormStateInterface $form_state) {
   $node = $form_state->getFormObject()->getEntity();
   $sitemetaGenerator = \Drupal::service('sitemeta.sitemeta.generator');
   // Check if updating or creating a new entry.

@@ -12,6 +12,7 @@ use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Path\AliasManagerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Form controller for Site meta edit forms.
@@ -49,6 +50,14 @@ class SiteMetaForm extends ContentEntityForm {
   protected $sitemetaGenerator;
 
   /**
+   * The request stack service.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
+
+
+  /**
    * Constructs a new SiteMetaForm.
    *
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
@@ -65,13 +74,16 @@ class SiteMetaForm extends ContentEntityForm {
    *   The messenger service.
    * @param \Drupal\sitemeta\SitemetaGenerator $sitemetaGenerator
    *   The sitemeta service.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request stack service.
    */
-  public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, PathValidatorInterface $path_validator, AliasManagerInterface $alias_manager, MessengerInterface $messenger, SitemetaGenerator $sitemetaGenerator) {
+  public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, PathValidatorInterface $path_validator, AliasManagerInterface $alias_manager, MessengerInterface $messenger, SitemetaGenerator $sitemetaGenerator, RequestStack $request_stack) {
     parent::__construct($entity_repository, $entity_type_bundle_info, $time);
     $this->pathValidator = $path_validator;
     $this->aliasManager = $alias_manager;
     $this->messenger = $messenger;
     $this->sitemetaGenerator = $sitemetaGenerator;
+    $this->requestStack = $request_stack;
   }
 
   /**
@@ -85,7 +97,8 @@ class SiteMetaForm extends ContentEntityForm {
       $container->get('path.validator'),
       $container->get('path.alias_manager'),
       $container->get('messenger'),
-      $container->get('sitemeta.sitemeta.generator')
+      $container->get('sitemeta.sitemeta.generator'),
+      $container->get('request_stack')
     );
   }
 
@@ -104,7 +117,7 @@ class SiteMetaForm extends ContentEntityForm {
       '#maxlength' => 255,
       '#size' => 45,
       '#description' => $this->t('Specify the existing path you wish to add a sitemeta. For example: /node/28, /forum/1, /taxonomy/term/1, /taxonomy/term/%.'),
-      '#field_prefix' => \Drupal::request()->getHost(),
+      '#field_prefix' => $this->requestStack->getCurrentRequest()->getHost(),
       '#required' => TRUE,
     ];
 
@@ -143,7 +156,7 @@ class SiteMetaForm extends ContentEntityForm {
     }
 
     if (!$this->pathValidator->isValid(trim($path, '/')) && strpos($path, '%') == FALSE) {
-      $form_state->setErrorByName('source', t("Either the path '@link_path' is invalid or you do not have access to it.", ['@link_path' => $path]));
+      $form_state->setErrorByName('source', $this->t("Either the path '@link_path' is invalid or you do not have access to it.", ['@link_path' => $path]));
     }
 
     if ($this->sitemetaGenerator->getSiteMeta($path, $this->entity->langcode->value) && $form['#form_id'] != "sitemeta_edit_form") {
