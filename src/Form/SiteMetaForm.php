@@ -56,7 +56,6 @@ class SiteMetaForm extends ContentEntityForm {
    */
   protected $requestStack;
 
-
   /**
    * Constructs a new SiteMetaForm.
    *
@@ -121,21 +120,21 @@ class SiteMetaForm extends ContentEntityForm {
       '#required' => TRUE,
     ];
 
-    $form['description'] = array(
+    $form['description'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Description'),
       '#default_value' => $entity->getDescription(),
       '#description' => $this->t('Specify the description.'),
       '#maxlength' => 255,
-    );
+    ];
 
-    $form['keywords'] = array(
+    $form['keywords'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Keywords'),
       '#default_value' => $entity->getKeywords(),
       '#description' => $this->t('Specify the keywords separated by comma.'),
       '#maxlength' => 255,
-    );
+    ];
 
     return $form;
   }
