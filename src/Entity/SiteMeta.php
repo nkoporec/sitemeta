@@ -19,7 +19,6 @@ use Drupal\user\UserInterface;
  *   label = @Translation("Site meta"),
  *   handlers = {
  *     "list_builder" = "Drupal\sitemeta\SiteMetaListBuilder",
- *
  *     "form" = {
  *       "default" = "Drupal\sitemeta\Form\SiteMetaForm",
  *       "add" = "Drupal\sitemeta\Form\SiteMetaForm",
@@ -31,6 +30,7 @@ use Drupal\user\UserInterface;
  *     },
  *   },
  *   base_table = "sitemeta",
+ *   translatable = FALSE,
  *   admin_permission = "administer site meta entities",
  *   entity_keys = {
  *     "id" = "id",
@@ -46,7 +46,6 @@ use Drupal\user\UserInterface;
  *     "delete-form" = "/admin/content/sitemeta/{sitemeta}/delete",
  *     "collection" = "/admin/content/sitemeta",
  *   },
- *   field_ui_base_route = "sitemeta.settings"
  * )
  */
 class SiteMeta extends ContentEntityBase implements SiteMetaInterface {
