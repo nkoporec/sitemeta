@@ -183,6 +183,14 @@ function sitemeta_validate_path(array $form, FormStateInterface $form_state) {
 function sitemeta_form_node_form_submit(array $form, FormStateInterface $form_state) {
   $node = $form_state->getFormObject()->getEntity();
   $sitemetaGenerator = \Drupal::service('sitemeta.sitemeta.generator');
+
+  // We only save the meta if we have have any data present.
+  if (empty($form_state->getValue('sitemeta_name')) &&
+    empty($form_state->getValue('sitemeta_description')) &&
+    empty($form_state->getValue('sitemeta_keywords'))) {
+    return;
+  }
+
   // Check if updating or creating a new entry.
   if ($sitemeta = $sitemetaGenerator->getSiteMeta($form_state->getValue('sitemeta_path'), $node->langcode->value)) {
     $sitemeta->set('name', $form_state->getValue('sitemeta_name'));
