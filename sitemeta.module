@@ -69,10 +69,15 @@ function sitemeta_preprocess_html(&$vars) {
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
  *
- * {@inheritdoc}
+ * Alter node edit form and add site meta field.
  */
-function sitemeta_form_node_post_edit_form_alter(&$form, FormStateInterface $form_state) {
+function sitemeta_form_node_form_alter(&$form, FormStateInterface $form_state) {
   $node = $form_state->getFormObject()->getEntity();
+  // Make sure we are on editing form.
+  if ($node->isNew()) {
+    return;
+  }
+
   $path = "/node/" . $node->id();
   $existing_sitemeta = \Drupal::entityTypeManager()->getStorage('sitemeta')->loadByProperties(['path' => $path, 'langcode' => $node->langcode->value]);
   if ($existing_sitemeta) {
